@@ -1,5 +1,5 @@
 import {Db} from 'mongodb';
-import {PhotoBucket} from './PhotoBucket';
+import {PhotoBucket, GridFSDoc} from './PhotoBucket';
 import {Readable, Writable} from 'stream';
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
@@ -74,19 +74,9 @@ function getFilename(doc: GridFSDoc): string {
   }
 }
 
-export interface GridFSDoc {
-  _id: string;
-  length: number;
-  contentType: string;
-}
-
 export interface KrakenAuth {
   api_key: string;
   api_secret: string;
-}
-
-export interface ErrorCallback {
-  (err?: Error): void;
 }
 
 interface StreamInfo {
