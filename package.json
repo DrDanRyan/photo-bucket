@@ -1,0 +1,26 @@
+{
+  "name": "photo-bucket",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drdanryan/photo-bucket.git"
+  },
+  "description": "An extension of the GridFSBucket class specific to handling photos",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "GridFS"
+  ],
+  "author": "Dan Ryan",
+  "license": "ISC",
+  "dependencies": {
+    "bhttp": "^1.2.1",
+    "meteor-random": "0.0.3",
+    "mongodb": "^2.2.2"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "photo-bucket",
+  "dependencies": {
+    "es6-promise": "registry:npm/es6-promise#3.0.0+20160211003958",
+    "meteor-random": "registry:npm/meteor-random#0.0.3+20160610170438"
+  },
+  "globalDependencies": {
+    "node": "registry:dt/node#6.0.0+20160709114037"
+  }
+}
