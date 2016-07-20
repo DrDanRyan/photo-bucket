@@ -185,7 +185,7 @@ interface SharpMetadata {
 }
 
 
-interface PhotoMetadata {
+export interface PhotoMetadata {
   type: string;
   checksum: string;
   isOptimized: boolean;
@@ -195,7 +195,7 @@ interface PhotoMetadata {
 }
 
 
-interface PhotoTransform extends Transform {
+export interface PhotoTransform extends Transform {
   quality(val: number): PhotoTransform;
   jpeg(): PhotoTransform;
 }
