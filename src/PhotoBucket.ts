@@ -109,6 +109,10 @@ export class PhotoBucket extends GridFSBucket {
 
 
   transform(_id: string, type: string, cb: ResultCallback): void {
+    if (this.photoTransforms[type] === undefined) {
+      process.nextTick(() => cb(new Error(`No transform for type ${type} has been registered.`)));
+    }
+
     this.findOne(_id, (err: Error, doc: GridFSDoc): void => {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Optimize Error: _id not found')); }
