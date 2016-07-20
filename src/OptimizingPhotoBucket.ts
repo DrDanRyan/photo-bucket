@@ -5,7 +5,7 @@ const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
 
 export class OptimizingPhotoBucket extends PhotoBucket {
-  constructor(db: Db, private auth: KrakenAuth) {
+  constructor(db: Db, private auth: {api_secret: string, api_key: string}) {
     super(db);
   }
 
@@ -58,6 +58,7 @@ function getStreamInfo(doc: GridFSDoc): StreamInfo {
   };
 }
 
+
 function getFilename(doc: GridFSDoc): string {
   if (doc.contentType === 'image/jpeg') {
     return doc._id + '.jpg';
@@ -68,10 +69,6 @@ function getFilename(doc: GridFSDoc): string {
   }
 }
 
-export interface KrakenAuth {
-  api_key: string;
-  api_secret: string;
-}
 
 interface StreamInfo {
   filename: string;

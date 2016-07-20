@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const sharp = require('sharp');
 
 export class PhotoBucket extends GridFSBucket {
-  private photoTransforms: PhotoTransformDict;
+  private photoTransforms: PhotoTransformDict = {};
 
 
   constructor(db: Db, name = 'photos') {
@@ -16,9 +16,9 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  findOne(query: string | Object, cb: ResultCallback): void;
-  findOne(query: string | Object, fields: Object, cb: ResultCallback): void;
-  findOne(query: string | Object, arg1?: any, arg2?: any): void {
+  findOne(query: string|Object, cb: ResultCallback): void;
+  findOne(query: string|Object, fields: Object, cb: ResultCallback): void;
+  findOne(query: string|Object, arg1?: any, arg2?: any): void {
     if (typeof query === 'string') {
       query = {_id: query};
     }
@@ -31,7 +31,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  download(_id: string, dest: string | Writable, cb: ResultCallback): void {
+  download(_id: string, dest: string|Writable, cb: ResultCallback): void {
     const downloadStream = this.openDownloadStream(_id);
 
     let destStream: Writable;
@@ -80,7 +80,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  metadata(src: string | Readable, cb: ResultCallback): void {
+  metadata(src: string|Readable, cb: ResultCallback): void {
     sharp(src).metadata((err: Error, metadata: SharpMetadata) => {
       if (err) { return cb(err); }
       if (!metadata) { return cb(new Error(`Metadata Error: metadata for ${src} is empty`)); }
@@ -89,7 +89,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  checksum(src: string | Readable, cb: ResultCallback): void {
+  checksum(src: string|Readable, cb: ResultCallback): void {
     let srcStream: Readable;
     if (typeof src === 'string') {
       srcStream = createReadStream(src);
@@ -163,11 +163,8 @@ export interface ResultCallback {
 }
 
 
-export interface SharpMetadata {
-  space: string;
-  height: number;
-  width: number;
-  format: string;
+export interface ErrorCallback {
+  (err?: Error): void;
 }
 
 
@@ -180,7 +177,15 @@ export interface GridFSDoc {
 }
 
 
-export interface PhotoMetadata {
+interface SharpMetadata {
+  space: string;
+  height: number;
+  width: number;
+  format: string;
+}
+
+
+interface PhotoMetadata {
   type: string;
   checksum: string;
   isOptimized: boolean;
@@ -190,17 +195,12 @@ export interface PhotoMetadata {
 }
 
 
-export interface PhotoTransform extends Transform {
+interface PhotoTransform extends Transform {
   quality(val: number): PhotoTransform;
   jpeg(): PhotoTransform;
 }
 
 
-export interface ErrorCallback {
-  (err?: Error): void;
-}
-
-
-export interface PhotoTransformDict {
+interface PhotoTransformDict {
   [index: string]: (doc: GridFSDoc) => PhotoTransform;
 }
