@@ -16,20 +16,18 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  findOne(query: string | Object, fields: Object | ResultCallback, cb?: any): void {
+  findOne(query: string | Object, ...args: any[]): void {
     if (typeof query === 'string') {
       query = {_id: query};
     }
 
-    if (typeof fields !== 'object') {
-      cb = fields;
-      fields = undefined;
-    }
-
-    if (fields) {
-      this.find(query).limit(1).project(fields).next(cb);
-    } else {
+    if (args.length === 1) {
+      const cb = args[0] as ResultCallback;
       this.find(query).limit(1).next(cb);
+    } else {
+      const fields = args[0] as Object;
+      const cb = args[1] as ResultCallback;
+      this.find(query).limit(1).project(fields).next(cb);
     }
   }
 
@@ -112,7 +110,7 @@ export class PhotoBucket extends GridFSBucket {
 
 
   transform(_id: string, type: string, cb: ResultCallback): void {
-    this.findOne(_id, (err: Error, doc: GridFSDoc) => {
+    this.findOne(_id, (err: Error, doc: GridFSDoc): void => {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Optimize Error: _id not found')); }
       const newId = generateId();
@@ -142,6 +140,11 @@ export class PhotoBucket extends GridFSBucket {
       }).once('finish', () => cb(null, newId)).once('error', cb);
       downloadStream.pipe(fileTransform).pipe(uploadStream);
     });
+  }
+
+
+  registerType(type: string, transform: (doc: GridFSDoc) => PhotoTransform): void {
+    this.photoTransforms[type] = transform;
   }
 
 
