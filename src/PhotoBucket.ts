@@ -48,8 +48,8 @@ export class PhotoBucket extends GridFSBucket {
 
   upload(fullPath: string, uploadCb: ResultCallback): void {
     auto({
-      metadata: cb => this.metadata(fullPath, cb),
-      checksum: cb => this.checksum(fullPath, cb),
+      metadata: (cb: ResultCallback) => this.metadata(fullPath, cb),
+      checksum: (cb: ResultCallback) => this.checksum(fullPath, cb),
       doc: ['metadata', 'checksum', doInsert]
     }, (err, res) => uploadCb(err, res.doc));
 
