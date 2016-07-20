@@ -1,5 +1,5 @@
 import {Db} from 'mongodb';
-import {PhotoBucket, GridFSDoc} from './PhotoBucket';
+import {PhotoBucket, GridFSDoc, ErrorCallback} from './PhotoBucket';
 import {Readable, Writable} from 'stream';
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
@@ -9,26 +9,20 @@ export class OptimizingPhotoBucket extends PhotoBucket {
     super(db);
   }
 
-  optimize(
-    upStream: Readable,
-    doc: GridFSDoc,
-    downStream: Writable,
-    cb: ErrorCallback
-  ): void {
+  optimize(upStream: Readable, doc: GridFSDoc, downStream: Writable, cb: ErrorCallback): void {
     const krakenOptions = {
       auth: this.auth,
       wait: true,
       lossy: true
     };
 
-    let streamInfo: StreamInfo;
+    let wrappedStream;
     try {
-      streamInfo = getStreamInfo(doc);
+      const streamInfo = getStreamInfo(doc);
+      wrappedStream = bhttp.wrapStream(upStream, streamInfo);
     } catch (e) {
       return cb(e);
     }
-
-    const wrappedStream = bhttp.wrapStream(upStream, streamInfo);
 
     bhttp.request(krakenUrl, {
       method: 'post',
