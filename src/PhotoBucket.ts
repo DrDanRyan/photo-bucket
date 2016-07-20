@@ -16,18 +16,17 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  findOne(query: string | Object, ...args: any[]): void {
+  findOne(query: string | Object, cb: ResultCallback): void;
+  findOne(query: string | Object, fields: Object, cb: ResultCallback): void;
+  findOne(query: string | Object, arg1?: any, arg2?: any): void {
     if (typeof query === 'string') {
       query = {_id: query};
     }
 
-    if (args.length === 1) {
-      const cb = args[0] as ResultCallback;
-      this.find(query).limit(1).next(cb);
+    if (arg2 === undefined) {
+      this.find(query).limit(1).next(arg1);
     } else {
-      const fields = args[0] as Object;
-      const cb = args[1] as ResultCallback;
-      this.find(query).limit(1).project(fields).next(cb);
+      this.find(query).limit(1).project(arg1).next(arg2);
     }
   }
 
