@@ -16,8 +16,8 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  findOne(query: string|Object, cb: ResultCallback): void;
-  findOne(query: string|Object, fields: Object, cb: ResultCallback): void;
+  findOne(query: string|Object, cb: ResultCb<GridFSDoc>): void;
+  findOne(query: string|Object, fields: Object, cb: ResultCb<GridFSDoc>): void;
   findOne(query: string|Object, arg1?: any, arg2?: any): void {
     if (typeof query === 'string') {
       query = {_id: query};
@@ -31,7 +31,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  download(_id: string, dest: string|Writable, cb: ResultCallback): void {
+  download(_id: string, dest: string|Writable, cb: ErrorCb): void {
     const downloadStream = this.openDownloadStream(_id);
 
     let destStream: Writable;
@@ -46,14 +46,14 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  upload(fullPath: string, uploadCb: ResultCallback): void {
+  upload(fullPath: string, uploadCb: ResultCb<any>): void {
     auto({
-      metadata: (cb: ResultCallback) => this.metadata(fullPath, cb),
-      checksum: (cb: ResultCallback) => this.checksum(fullPath, cb),
+      metadata: (cb: ResultCb<SharpMetadata>) => this.metadata(fullPath, cb),
+      checksum: (cb: ResultCb<string>) => this.checksum(fullPath, cb),
       doc: ['metadata', 'checksum', doInsert]
     }, (err: Error, res: any) => uploadCb(err, res.doc));
 
-    function doInsert(res: any, cb: ResultCallback): void {
+    function doInsert(res: any, cb: ResultCb<any>): void {
       const metadata: SharpMetadata = res.metadata;
       const checksum: string = res.checksum;
       const filename = basename(fullPath);
@@ -80,7 +80,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  metadata(src: string|Readable, cb: ResultCallback): void {
+  metadata(src: string|Readable, cb: ResultCb<SharpMetadata>): void {
     sharp(src).metadata((err: Error, metadata: SharpMetadata) => {
       if (err) { return cb(err); }
       if (!metadata) { return cb(new Error(`Metadata Error: metadata for ${src} is empty`)); }
@@ -89,7 +89,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  checksum(src: string|Readable, cb: ResultCallback): void {
+  checksum(src: string|Readable, cb: ResultCb<string>): void {
     let srcStream: Readable;
     if (typeof src === 'string') {
       srcStream = createReadStream(src);
@@ -108,7 +108,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  transform(_id: string, type: string, cb: ResultCallback): void {
+  transform(_id: string, type: string, cb: ResultCb<string>): void {
     if (this.photoTransforms[type] === undefined) {
       process.nextTick(() => cb(new Error(`No transform for type ${type} has been registered.`)));
     }
@@ -158,12 +158,12 @@ export class PhotoBucket extends GridFSBucket {
 }
 
 
-export interface ResultCallback {
-  (err?: Error, result?: any): void;
+export interface ResultCb<T> {
+  (err: Error, result?: T): void;
 }
 
 
-export interface ErrorCallback {
+export interface ErrorCb {
   (err?: Error): void;
 }
 

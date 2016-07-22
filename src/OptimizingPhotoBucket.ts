@@ -1,5 +1,5 @@
 import {Db} from 'mongodb';
-import {PhotoBucket, GridFSDoc, ErrorCallback} from './PhotoBucket';
+import {PhotoBucket, GridFSDoc, ErrorCb} from './PhotoBucket';
 import {Readable, Writable} from 'stream';
 import {IncomingMessage} from 'http';
 const bhttp = require('bhttp');
@@ -10,7 +10,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
     super(db);
   }
 
-  optimize(upStream: Readable, doc: GridFSDoc, downStream: Writable, cb: ErrorCallback): void {
+  optimize(upStream: Readable, doc: GridFSDoc, downStream: Writable, cb: ErrorCb): void {
     const krakenOptions = {
       auth: this.auth,
       wait: true,
