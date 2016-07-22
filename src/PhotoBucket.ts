@@ -146,7 +146,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  registerType(type: string, transform: (doc: PhotoDoc) => PhotoTransform): void {
+  registerType(type: string, transform: (doc?: PhotoDoc) => PhotoTransform): void {
     this.photoTransforms[type] = transform;
   }
 
