@@ -3,7 +3,7 @@ import {Readable, Writable, Transform} from 'stream';
 import {createWriteStream, createReadStream} from 'fs';
 import {id as generateId} from 'meteor-random';
 import {basename} from 'path';
-import {auto} from 'async';
+const {auto} = require('auto');
 const crypto = require('crypto');
 const sharp = require('sharp');
 
@@ -51,7 +51,7 @@ export class PhotoBucket extends GridFSBucket {
       metadata: (cb: ResultCallback) => this.metadata(fullPath, cb),
       checksum: (cb: ResultCallback) => this.checksum(fullPath, cb),
       doc: ['metadata', 'checksum', doInsert]
-    }, (err, res) => uploadCb(err, res.doc));
+    }, (err: Error, res: any) => uploadCb(err, res.doc));
 
     function doInsert(res: any, cb: ResultCallback): void {
       const metadata: SharpMetadata = res.metadata;
