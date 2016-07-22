@@ -6,6 +6,8 @@ import {id as generateId} from 'meteor-random';
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
 
+export {Db};
+
 export class OptimizingPhotoBucket extends PhotoBucket {
   constructor(db: Db, private auth: {api_secret: string, api_key: string}) {
     super(db);
