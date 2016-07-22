@@ -1,6 +1,6 @@
 {
   "name": "photo-bucket",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/drdanryan/photo-bucket.git"
