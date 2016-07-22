@@ -177,7 +177,7 @@ export interface GridFSDoc {
 }
 
 
-interface SharpMetadata {
+export interface SharpMetadata {
   space: string;
   height: number;
   width: number;
