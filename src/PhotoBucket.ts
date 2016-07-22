@@ -3,7 +3,7 @@ import {Readable, Writable, Transform} from 'stream';
 import {createWriteStream, createReadStream} from 'fs';
 import {id as generateId} from 'meteor-random';
 import {basename} from 'path';
-const {auto} = require('auto');
+const {auto} = require('async');
 const crypto = require('crypto');
 const sharp = require('sharp');
 
@@ -16,8 +16,8 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  findOne(query: string|Object, cb: ResultCb<GridFSDoc>): void;
-  findOne(query: string|Object, fields: Object, cb: ResultCb<GridFSDoc>): void;
+  findOne(query: string|Object, cb: ResultCb<PhotoDoc>): void;
+  findOne(query: string|Object, fields: Object, cb: ResultCb<PhotoDoc>): void;
   findOne(query: string|Object, arg1?: any, arg2?: any): void {
     if (typeof query === 'string') {
       query = {_id: query};
@@ -113,7 +113,7 @@ export class PhotoBucket extends GridFSBucket {
       process.nextTick(() => cb(new Error(`No transform for type ${type} has been registered.`)));
     }
 
-    this.findOne(_id, (err: Error, doc: GridFSDoc): void => {
+    this.findOne(_id, (err: Error, doc: PhotoDoc): void => {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Optimize Error: _id not found')); }
       const newId = generateId();
@@ -146,12 +146,12 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  registerType(type: string, transform: (doc: GridFSDoc) => PhotoTransform): void {
+  registerType(type: string, transform: (doc: PhotoDoc) => PhotoTransform): void {
     this.photoTransforms[type] = transform;
   }
 
 
-  private shouldMakeJpeg(doc: GridFSDoc): boolean {
+  private shouldMakeJpeg(doc: PhotoDoc): boolean {
     return (doc.contentType !== 'image/jpeg' && doc.contentType !== 'image/png') ||
       !/rgb/.test(doc.metadata.space);
   }
@@ -168,7 +168,7 @@ export interface ErrorCb {
 }
 
 
-export interface GridFSDoc {
+export interface PhotoDoc {
   _id: string;
   length: number;
   contentType: string;
@@ -177,7 +177,7 @@ export interface GridFSDoc {
 }
 
 
-interface SharpMetadata {
+export interface SharpMetadata {
   space: string;
   height: number;
   width: number;
@@ -202,5 +202,5 @@ export interface PhotoTransform extends Transform {
 
 
 interface PhotoTransformDict {
-  [index: string]: (doc: GridFSDoc) => PhotoTransform;
+  [index: string]: (doc: PhotoDoc) => PhotoTransform;
 }

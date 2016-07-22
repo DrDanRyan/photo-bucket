@@ -1,7 +1,8 @@
 import {Db} from 'mongodb';
-import {PhotoBucket, GridFSDoc, ErrorCb} from './PhotoBucket';
+import {PhotoBucket, PhotoDoc, ErrorCb, ResultCb} from './PhotoBucket';
 import {Readable, Writable} from 'stream';
 import {IncomingMessage} from 'http';
+import {id as generateId} from 'meteor-random';
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
 
@@ -10,7 +11,26 @@ export class OptimizingPhotoBucket extends PhotoBucket {
     super(db);
   }
 
-  optimize(upStream: Readable, doc: GridFSDoc, downStream: Writable, cb: ErrorCb): void {
+  optimize(doc: PhotoDoc, cb: ResultCb<string>): void {
+    const newId = generateId();
+    const newMetadata = {
+      type: doc.metadata.type,
+      isOptimized: false,
+      checksum: doc.metadata.checksum,
+      space: doc.metadata.space,
+      height: doc.metadata.height,
+      width: doc.metadata.width
+    };
+
+    const readStream = this.openDownloadStream(doc._id);
+    const writeStream = this.openUploadStreamWithId(newId, doc.filename, {
+      contentType: doc.contentType,
+      metadata: newMetadata
+    });
+    this.sendToKraken(readStream, doc, writeStream, (err: Error) => cb(err, newId));
+  }
+
+  private sendToKraken(upStream: Readable, doc: PhotoDoc, downStream: Writable, cb: ErrorCb): void {
     const krakenOptions = {
       auth: this.auth,
       wait: true,
@@ -51,7 +71,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
 }
 
 
-function getStreamInfo(doc: GridFSDoc): StreamInfo {
+function getStreamInfo(doc: PhotoDoc): StreamInfo {
   return {
     filename: getFilename(doc),
     contentType: doc.contentType,
@@ -60,7 +80,7 @@ function getStreamInfo(doc: GridFSDoc): StreamInfo {
 }
 
 
-function getFilename(doc: GridFSDoc): string {
+function getFilename(doc: PhotoDoc): string {
   if (doc.contentType === 'image/jpeg') {
     return doc._id + '.jpg';
   } else if (doc.contentType === 'image/png') {
