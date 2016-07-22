@@ -2,7 +2,7 @@
   "name": "photo-bucket",
   "dependencies": {
     "meteor-random": "registry:npm/meteor-random#0.0.3+20160610170438",
-    "mongodb": "registry:npm/mongodb#2.1.0+20160720065455"
+    "mongodb": "registry:npm/mongodb#2.1.0+20160721204323"
   },
   "globalDependencies": {
     "node-4": "registry:dt/node-4#4.0.0+20160720000508"
