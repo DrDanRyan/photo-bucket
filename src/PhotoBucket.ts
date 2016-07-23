@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const sharp = require('sharp');
 
 export class PhotoBucket extends GridFSBucket {
-  private photoTransforms: PhotoTransformDict = {};
+  protected photoTransforms: PhotoTransformDict = {};
 
 
   constructor(db: Db, name = 'photos') {
