@@ -201,6 +201,6 @@ export interface PhotoTransform extends Transform {
 }
 
 
-interface PhotoTransformDict {
+export interface PhotoTransformDict {
   [index: string]: (doc: PhotoDoc) => PhotoTransform;
 }
