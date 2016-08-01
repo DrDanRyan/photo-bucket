@@ -1,12 +1,9 @@
-import {Db} from 'mongodb';
-import {PhotoBucket, PhotoDoc, ErrorCb, ResultCb} from './PhotoBucket';
+import {PhotoBucket, PhotoDoc, ErrorCb, ResultCb, Db} from './PhotoBucket';
 import {Readable, Writable} from 'stream';
 import {IncomingMessage} from 'http';
 import {id as generateId} from 'meteor-random';
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
-
-export {Db};
 
 export class OptimizingPhotoBucket extends PhotoBucket {
   constructor(db: Db, private auth: {api_secret: string, api_key: string}) {

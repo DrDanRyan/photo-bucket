@@ -1,11 +1,11 @@
 import {GridFSBucket, Db} from 'mongodb';
-import {Readable, Writable, Transform} from 'stream';
 import {createWriteStream, createReadStream} from 'fs';
 import {id as generateId} from 'meteor-random';
 import {basename} from 'path';
 const {auto} = require('async');
 const crypto = require('crypto');
 const sharp = require('sharp');
+export {Db};
 
 export class PhotoBucket extends GridFSBucket {
   protected photoTransforms: PhotoTransformDict = {};
@@ -31,10 +31,10 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  download(_id: string, dest: string|Writable, cb: ErrorCb): void {
+  download(_id: string, dest: string|NodeJS.WritableStream, cb: ErrorCb): void {
     const downloadStream = this.openDownloadStream(_id);
 
-    let destStream: Writable;
+    let destStream: NodeJS.WritableStream;
     if (typeof dest === 'string') {
       destStream = createWriteStream(dest);
     } else {
@@ -80,7 +80,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  metadata(src: string|Readable, cb: ResultCb<SharpMetadata>): void {
+  metadata(src: string|NodeJS.ReadableStream, cb: ResultCb<SharpMetadata>): void {
     sharp(src).metadata((err: Error, metadata: SharpMetadata) => {
       if (err) { return cb(err); }
       if (!metadata) { return cb(new Error(`Metadata Error: metadata for ${src} is empty`)); }
@@ -89,17 +89,17 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  checksum(src: string|Readable, cb: ResultCb<string>): void {
-    let srcStream: Readable;
+  checksum(src: string|NodeJS.ReadableStream, cb: ResultCb<string>): void {
+    let srcStream: NodeJS.ReadableStream;
     if (typeof src === 'string') {
       srcStream = createReadStream(src);
     } else {
       srcStream = src;
     }
 
-    const hash: Readable & Writable = crypto.createHash('sha1')
+    const hash: NodeJS.ReadWriteStream = crypto.createHash('sha1')
       .once('readable', () => {
-        const checksum = hash.read();
+        const checksum: any = hash.read();
         if (!checksum) { return cb(new Error('Checksum Empty')); }
         cb(null, checksum.toString('hex'));
       })
@@ -195,7 +195,7 @@ export interface PhotoMetadata {
 }
 
 
-export interface PhotoTransform extends Transform {
+export interface PhotoTransform extends NodeJS.ReadWriteStream {
   quality(val: number): PhotoTransform;
   jpeg(): PhotoTransform;
 }
