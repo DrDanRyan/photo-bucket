@@ -8,6 +8,9 @@
   "description": "An extension of the GridFSBucket class specific to handling photos",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "scripts": {
+    "preversion": "rm -Rf dist && tsc"
+  },
   "keywords": [
     "GridFS"
   ],
