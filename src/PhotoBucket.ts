@@ -108,7 +108,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  transform(_id: string, type: string, cb: ResultCb<string>): void {
+  transform(_id: string, type: string, cb: ResultCb<PhotoDoc>): void {
     if (this.photoTransforms[type] === undefined) {
       process.nextTick(() => cb(new Error(`No transform for type ${type} has been registered.`)));
     }
@@ -136,11 +136,18 @@ export class PhotoBucket extends GridFSBucket {
         fileTransform = this.photoTransforms[type](doc);
       }
 
+      const newDoc = {
+        _id: newId,
+        filename: doc.filename,
+        contentType: newContentType,
+        metadata: newMetadata
+      } as PhotoDoc;
+
       const downloadStream = this.openDownloadStream(_id);
       const uploadStream = this.openUploadStreamWithId(newId, doc.filename, {
         contentType: newContentType,
         metadata: newMetadata
-      }).once('finish', () => cb(null, newId)).once('error', cb);
+      }).once('finish', () => cb(null, newDoc)).once('error', cb);
       downloadStream.pipe(fileTransform).pipe(uploadStream);
     });
   }
@@ -193,6 +200,7 @@ export interface PhotoMetadata {
   width: number;
   space: string;
 }
+
 
 
 export interface PhotoTransform extends NodeJS.ReadWriteStream {
