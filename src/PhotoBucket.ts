@@ -17,7 +17,7 @@ export class PhotoBucket extends GridFSBucket {
 
 
   findOne(query: string|Object, cb: ResultCb<PhotoDoc>): void;
-  findOne(query: string|Object, fields: Object, cb: ResultCb<PhotoDoc>): void;
+  findOne(query: string|Object, options: {fields: Object}, cb: ResultCb<PhotoDoc>): void;
   findOne(query: string|Object, arg1?: any, arg2?: any): void {
     if (typeof query === 'string') {
       query = {_id: query};
@@ -26,7 +26,7 @@ export class PhotoBucket extends GridFSBucket {
     if (arg2 === undefined) {
       this.find(query).limit(1).next(arg1);
     } else {
-      this.find(query).limit(1).project(arg1).next(arg2);
+      this.find(query).limit(1).project(arg1.fields).next(arg2);
     }
   }
 
