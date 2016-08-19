@@ -55,6 +55,10 @@ export class PhotoBucket extends GridFSBucket {
 
     function doInsert(res: any, cb: ResultCb<any>): void {
       const metadata: SharpMetadata = res.metadata;
+      if (['png', 'jpeg', 'tiff', 'webp'].indexOf(metadata.format) === -1) {
+        return cb(new Error(`metdata: format of ${metadata.format} is not supported`));
+      }
+
       const checksum: string = res.checksum;
       const filename = basename(fullPath);
       const doc = {
@@ -83,7 +87,7 @@ export class PhotoBucket extends GridFSBucket {
   metadata(src: string|NodeJS.ReadableStream, cb: ResultCb<SharpMetadata>): void {
     sharp(src).metadata((err: Error, metadata: SharpMetadata) => {
       if (err) { return cb(err); }
-      if (!metadata) { return cb(new Error(`Metadata Error: metadata for ${src} is empty`)); }
+      if (!metadata) { return cb(new Error(`metadata: metadata for ${src} is empty`)); }
       cb(null, metadata);
     });
   }
