@@ -2,7 +2,7 @@ import {GridFSBucket, Db} from 'mongodb';
 import {createWriteStream, createReadStream} from 'fs';
 import {id as generateId} from 'meteor-random';
 import {basename} from 'path';
-const {auto} = require('async');
+const {parallel} = require('async');
 const crypto = require('crypto');
 const sharp = require('sharp');
 export {Db};
@@ -47,19 +47,17 @@ export class PhotoBucket extends GridFSBucket {
 
 
   upload(fullPath: string, uploadCb: ResultCb<any>): void {
-    auto({
-      metadata: (cb: ResultCb<SharpMetadata>) => this.metadata(fullPath, cb),
-      checksum: (cb: ResultCb<string>) => this.checksum(fullPath, cb),
-      doc: ['metadata', 'checksum', doInsert]
-    }, (err: Error, res: any) => uploadCb(err, res.doc));
+    parallel({
+      metadata: (cb: any) => this.metadata(fullPath, cb),
+      checksum: (cb: any) => this.checksum(fullPath, cb),
+    }, (err: Error, res: {metadata: SharpMetadata, checksum: string}) => {
+      if (err) { return uploadCb(err); }
 
-    function doInsert(res: any, cb: ResultCb<any>): void {
-      const metadata: SharpMetadata = res.metadata;
+      const {metadata, checksum} = res;
       if (['png', 'jpeg', 'tiff', 'webp'].indexOf(metadata.format) === -1) {
-        return cb(new Error(`metdata: format of ${metadata.format} is not supported`));
+        return uploadCb(new Error(`metdata: format of ${metadata.format} is not supported`));
       }
 
-      const checksum: string = res.checksum;
       const filename = basename(fullPath);
       const doc = {
         _id: generateId(),
@@ -78,9 +76,9 @@ export class PhotoBucket extends GridFSBucket {
       const uploadStream = this.openUploadStreamWithId(doc._id, filename, {
         contentType: doc.contentType,
         metadata: doc.metadata
-      }).once('finish', () => cb(null, doc)).once('error', cb);
+      }).once('finish', () => uploadCb(null, doc)).once('error', uploadCb);
       readStream.pipe(uploadStream);
-    }
+    });
   }
 
 
