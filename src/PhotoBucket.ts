@@ -46,7 +46,12 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  upload(fullPath: string, uploadCb: ResultCb<any>): void {
+  upload(fullPath: string, uploadCb: ResultCb<PhotoDoc>): void;
+  upload(fullPath: string, filename: string, uploadCb: ResultCb<PhotoDoc>): void;
+  upload(fullPath: string, arg1: any, arg2?: any): void {
+    const filename: string = arg2 ? arg1 : basename(fullPath);
+    const uploadCb: ResultCb<PhotoDoc> = arg2 ? arg2 : arg1;
+
     parallel({
       metadata: (cb: any) => this.metadata(fullPath, cb),
       checksum: (cb: any) => this.checksum(fullPath, cb),
@@ -58,7 +63,6 @@ export class PhotoBucket extends GridFSBucket {
         return uploadCb(new Error(`metdata: format of ${metadata.format} is not supported`));
       }
 
-      const filename = basename(fullPath);
       const doc = {
         _id: generateId(),
         filename,
@@ -70,7 +74,7 @@ export class PhotoBucket extends GridFSBucket {
           width: metadata.width,
           checksum
         }
-      };
+      } as PhotoDoc;
 
       const readStream = createReadStream(fullPath);
       const uploadStream = this.openUploadStreamWithId(doc._id, filename, {
