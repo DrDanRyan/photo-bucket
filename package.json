@@ -17,9 +17,10 @@
   "author": "Dan Ryan",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.0.0",
     "bhttp": "^1.2.1",
     "meteor-random": "0.0.3",
     "mongodb": "^2.2.2",
-    "async": "^2.0.0"
+    "sharp": "^0.16.0"
   }
 }
