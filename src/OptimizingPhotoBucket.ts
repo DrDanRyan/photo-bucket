@@ -14,7 +14,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
     const newId = generateId();
     const newMetadata = {
       type: doc.metadata.type,
-      isOptimized: false,
+      isOptimized: true,
       checksum: doc.metadata.checksum,
       space: doc.metadata.space,
       height: doc.metadata.height,
