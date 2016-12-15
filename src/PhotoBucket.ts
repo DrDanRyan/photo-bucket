@@ -121,7 +121,7 @@ export class PhotoBucket extends GridFSBucket {
 
     this.findOne(_id, (err: Error, doc: PhotoDoc): void => {
       if (err) { return cb(err); }
-      if (!doc) { return cb(new Error('Optimize Error: _id not found')); }
+      if (!doc) { return cb(new Error('Transform Error: _id not found')); }
       const newId = generateId();
       const newMetadata: PhotoMetadata = {
         type,
