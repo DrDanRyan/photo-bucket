@@ -1,5 +1,6 @@
 *-spec.*
 src/
-typings/
+.vscode/
+yarn.lock
 tsconfig.json
 tslint.json

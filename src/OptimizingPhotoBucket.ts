@@ -1,7 +1,7 @@
 import {PhotoBucket, PhotoDoc, ErrorCb, ResultCb, Db} from './PhotoBucket';
 import {Readable, Writable} from 'stream';
 import {IncomingMessage} from 'http';
-import {id as generateId} from 'meteor-random';
+const generateId = require('meteor-random').id;
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
 
@@ -21,7 +21,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
       width: doc.metadata.width
     };
 
-    const readStream = this.openDownloadStream(doc._id);
+    const readStream = this.openDownloadStream(doc._id as any);
     const writeStream = this.openUploadStreamWithId(newId, doc.filename, {
       contentType: doc.contentType,
       metadata: newMetadata

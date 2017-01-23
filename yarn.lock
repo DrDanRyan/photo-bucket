@@ -2,6 +2,24 @@
 # yarn lockfile v1
 
 
+"@types/async@^2.0.38":
+  version "2.0.38"
+  resolved "https://registry.npmjs.org/@types/async/-/async-2.0.38.tgz#5c369dcb14788da0621daafa8594a053b0edcb21"
+
+"@types/core-js@^0.9.35":
+  version "0.9.35"
+  resolved "https://registry.npmjs.org/@types/core-js/-/core-js-0.9.35.tgz#444064e63711cdcc62ea844d27642f6efc2285f2"
+
+"@types/mongodb@^2.1.37":
+  version "2.1.37"
+  resolved "https://registry.npmjs.org/@types/mongodb/-/mongodb-2.1.37.tgz#7f5748582a742dfe9a56955c68fa2aa53ae216f3"
+  dependencies:
+    "@types/node" "*"
+
+"@types/node@*", "@types/node@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.npmjs.org/@types/node/-/node-7.0.3.tgz#6bc1d23929bd426eabd409b5898537076bbbdeff"
+
 async@^2.0.0:
   version "2.1.4"
   resolved "https://registry.npmjs.org/async/-/async-2.1.4.tgz#2d2160c7788032e4dd6cbe2502f1f9a2c8f6cde4"

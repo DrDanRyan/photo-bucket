@@ -17,6 +17,10 @@
   "author": "Dan Ryan",
   "license": "ISC",
   "dependencies": {
+    "@types/async": "^2.0.38",
+    "@types/core-js": "^0.9.35",
+    "@types/mongodb": "^2.1.37",
+    "@types/node": "^7.0.3",
     "async": "^2.0.0",
     "bhttp": "^1.2.1",
     "meteor-random": "0.0.3",

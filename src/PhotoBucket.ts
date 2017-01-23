@@ -1,26 +1,26 @@
-import {GridFSBucket, Db} from 'mongodb';
-import {createWriteStream, createReadStream} from 'fs';
-import {id as generateId} from 'meteor-random';
-import {basename} from 'path';
-const {parallel} = require('async');
-const crypto = require('crypto');
+import { GridFSBucket, Db } from 'mongodb';
+import { createWriteStream, createReadStream } from 'fs';
+import { basename } from 'path';
+import { parallel } from 'async';
+import { createHash } from 'crypto';
+const generateId = require('meteor-random').id;
 const sharp = require('sharp');
-export {Db};
+export { Db };
 
 export class PhotoBucket extends GridFSBucket {
   protected photoTransforms: PhotoTransformDict = {};
 
 
   constructor(db: Db, name = 'photos') {
-    super(db, {bucketName: name});
+    super(db, { bucketName: name });
   }
 
 
-  findOne(query: string|Object, cb: ResultCb<PhotoDoc>): void;
-  findOne(query: string|Object, options: {fields: Object}, cb: ResultCb<PhotoDoc>): void;
-  findOne(query: string|Object, arg1?: any, arg2?: any): void {
+  findOne(query: string | Object, cb: ResultCb<PhotoDoc>): void;
+  findOne(query: string | Object, options: { fields: Object }, cb: ResultCb<PhotoDoc>): void;
+  findOne(query: string | Object, arg1?: any, arg2?: any): void {
     if (typeof query === 'string') {
-      query = {_id: query};
+      query = { _id: query };
     }
 
     if (arg2 === undefined) {
@@ -31,8 +31,8 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  download(_id: string, dest: string|NodeJS.WritableStream, cb: ErrorCb): void {
-    const downloadStream = this.openDownloadStream(_id);
+  download(_id: string, dest: string | NodeJS.WritableStream, cb: ErrorCb): void {
+    const downloadStream = this.openDownloadStream(_id as any);
 
     let destStream: NodeJS.WritableStream;
     if (typeof dest === 'string') {
@@ -55,7 +55,7 @@ export class PhotoBucket extends GridFSBucket {
     parallel({
       metadata: (cb: any) => this.metadata(fullPath, cb),
       checksum: (cb: any) => this.checksum(fullPath, cb),
-    }, (err: Error, res: {metadata: SharpMetadata, checksum: string}) => {
+    }, (err: Error, res: { metadata: SharpMetadata, checksum: string }) => {
       if (err) { return uploadCb(err); }
 
       const {metadata, checksum} = res;
@@ -86,7 +86,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  metadata(src: string|NodeJS.ReadableStream, cb: ResultCb<SharpMetadata>): void {
+  metadata(src: string | NodeJS.ReadableStream, cb: ResultCb<SharpMetadata>): void {
     sharp(src).metadata((err: Error, metadata: SharpMetadata) => {
       if (err) { return cb(err); }
       if (!metadata) { return cb(new Error(`metadata: metadata for ${src} is empty`)); }
@@ -95,7 +95,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  checksum(src: string|NodeJS.ReadableStream, cb: ResultCb<string>): void {
+  checksum(src: string | NodeJS.ReadableStream, cb: ResultCb<string>): void {
     let srcStream: NodeJS.ReadableStream;
     if (typeof src === 'string') {
       srcStream = createReadStream(src);
@@ -103,7 +103,7 @@ export class PhotoBucket extends GridFSBucket {
       srcStream = src;
     }
 
-    const hash: NodeJS.ReadWriteStream = crypto.createHash('sha1')
+    const hash: NodeJS.ReadWriteStream = createHash('sha1')
       .once('readable', () => {
         const checksum: any = hash.read();
         if (!checksum) { return cb(new Error('Checksum Empty')); }
@@ -149,7 +149,7 @@ export class PhotoBucket extends GridFSBucket {
         metadata: newMetadata
       } as PhotoDoc;
 
-      const downloadStream = this.openDownloadStream(_id);
+      const downloadStream = this.openDownloadStream(_id as any);
       const uploadStream = this.openUploadStreamWithId(newId, doc.filename, {
         contentType: newContentType,
         metadata: newMetadata
