@@ -3,6 +3,7 @@ import { createWriteStream, createReadStream } from 'fs';
 import { basename } from 'path';
 import { parallel } from 'async';
 import { createHash } from 'crypto';
+import { Readable, Writable } from 'stream';
 const generateId = require('meteor-random').id;
 const sharp = require('sharp');
 export { Db };
@@ -31,10 +32,10 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  download(_id: string, dest: string | NodeJS.WritableStream, cb: ErrorCb): void {
+  download(_id: string, dest: string | Writable, cb: ErrorCb): void {
     const downloadStream = this.openDownloadStream(_id as any);
 
-    let destStream: NodeJS.WritableStream;
+    let destStream: Writable;
     if (typeof dest === 'string') {
       destStream = createWriteStream(dest);
     } else {
@@ -86,7 +87,7 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  metadata(src: string | NodeJS.ReadableStream, cb: ResultCb<SharpMetadata>): void {
+  metadata(src: string | Readable, cb: ResultCb<SharpMetadata>): void {
     sharp(src).metadata((err: Error, metadata: SharpMetadata) => {
       if (err) { return cb(err); }
       if (!metadata) { return cb(new Error(`metadata: metadata for ${src} is empty`)); }
@@ -95,8 +96,8 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  checksum(src: string | NodeJS.ReadableStream, cb: ResultCb<string>): void {
-    let srcStream: NodeJS.ReadableStream;
+  checksum(src: string | Readable, cb: ResultCb<string>): void {
+    let srcStream: Readable;
     if (typeof src === 'string') {
       srcStream = createReadStream(src);
     } else {
