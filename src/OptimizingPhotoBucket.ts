@@ -1,5 +1,4 @@
 import {PhotoBucket, PhotoDoc, ErrorCb, ResultCb, Db} from './PhotoBucket';
-import {Readable, Writable} from 'stream';
 import {IncomingMessage} from 'http';
 const generateId = require('meteor-random').id;
 const bhttp = require('bhttp');
@@ -29,7 +28,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
     this.sendToKraken(readStream, doc, writeStream, (err: Error) => cb(err, newId));
   }
 
-  private sendToKraken(upStream: Readable, doc: PhotoDoc, downStream: Writable, cb: ErrorCb): void {
+  private sendToKraken(upStream: NodeJS.ReadableStream, doc: PhotoDoc, downStream: NodeJS.WritableStream, cb: ErrorCb): void {
     const krakenOptions = {
       auth: this.auth,
       wait: true,
@@ -54,7 +53,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
       if (err) { return cb(new Error(`PhotoOptimizier:POST Request:${err.message}`)); }
       const status = response.body;
       if (status.success) {
-        bhttp.get(status.kraked_url, {stream: true}, (getErr: Error, getResponse: Readable) => {
+        bhttp.get(status.kraked_url, {stream: true}, (getErr: Error, getResponse: NodeJS.ReadableStream) => {
           if (getErr) { return cb(new Error(`PhotoOptimizier:GET Request:${getErr.message}`)); }
           getResponse
             .pipe(downStream)
