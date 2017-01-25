@@ -3,7 +3,7 @@ import { createWriteStream, createReadStream } from 'fs';
 import { basename } from 'path';
 import { parallel } from 'async';
 import { createHash } from 'crypto';
-const generateId = require('meteor-random').id;
+const Random = require('meteor-random');
 const sharp = require('sharp');
 export { Db };
 
@@ -64,7 +64,7 @@ export class PhotoBucket extends GridFSBucket {
       }
 
       const doc = {
-        _id: generateId(),
+        _id: Random.id(),
         filename,
         contentType: `image/${metadata.format}`,
         metadata: {
@@ -122,7 +122,7 @@ export class PhotoBucket extends GridFSBucket {
     this.findOne(_id, (err: Error, doc: PhotoDoc): void => {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Transform Error: _id not found')); }
-      const newId = generateId();
+      const newId = Random.id();
       const newMetadata: PhotoMetadata = {
         type,
         isOptimized: false,
