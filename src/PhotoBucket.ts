@@ -123,6 +123,7 @@ export class PhotoBucket extends GridFSBucket {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Transform Error: _id not found')); }
       const newId = Random.id();
+      const newContentType = 'image/jpeg';
       const newMetadata: PhotoMetadata = {
         type,
         isOptimized: false,
@@ -131,16 +132,7 @@ export class PhotoBucket extends GridFSBucket {
         width: doc.metadata.width,
         height: doc.metadata.height
       };
-
-      let newContentType: string;
-      let fileTransform: PhotoTransform;
-      if (this.shouldMakeJpeg(doc)) {
-        newContentType = 'image/jpeg';
-        fileTransform = this.photoTransforms[type](doc).quality(100).jpeg();
-      } else {
-        newContentType = doc.contentType;
-        fileTransform = this.photoTransforms[type](doc);
-      }
+      const fileTransform = this.shouldMakeJpeg(doc) ? this.photoTransforms[type](doc).quality(100).jpeg() : this.photoTransforms[type](doc);
 
       const newDoc = {
         _id: newId,
@@ -165,8 +157,7 @@ export class PhotoBucket extends GridFSBucket {
 
 
   private shouldMakeJpeg(doc: PhotoDoc): boolean {
-    return (doc.contentType !== 'image/jpeg' && doc.contentType !== 'image/png') ||
-      !/rgb/.test(doc.metadata.space);
+    return doc.contentType !== 'image/jpeg' || !/rgb/.test(doc.metadata.space);
   }
 }
 
