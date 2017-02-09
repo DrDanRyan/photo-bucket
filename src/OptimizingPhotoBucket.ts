@@ -49,8 +49,8 @@ export class OptimizingPhotoBucket extends PhotoBucket {
         data: JSON.stringify(krakenOptions),
         upload: wrappedStream
       }
-    }, { responseTimeout: 60 * 1000 }, (err: Error, response: BhttpResponse) => {
-      if (err) { return cb(new Error(`PhotoOptimizier:POST Request:${err.message}`)); }
+    }, (err: Error, response: BhttpResponse) => {
+      if (err) { return cb(new Error(`PhotoOptimizier:POST Request:${err.message}\nResponse:${response}`)); }
       const status = response.body;
       if (status.success) {
         bhttp.get(status.kraked_url, { stream: true }, (getErr: Error, getResponse: NodeJS.ReadableStream) => {
