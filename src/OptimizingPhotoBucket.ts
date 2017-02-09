@@ -1,11 +1,11 @@
-import {PhotoBucket, PhotoDoc, ErrorCb, ResultCb, Db} from './PhotoBucket';
-import {IncomingMessage} from 'http';
+import { PhotoBucket, PhotoDoc, ErrorCb, ResultCb, Db } from './PhotoBucket';
+import { IncomingMessage } from 'http';
 const Random = require('meteor-random');
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
 
 export class OptimizingPhotoBucket extends PhotoBucket {
-  constructor(db: Db, private auth: {api_secret: string, api_key: string}) {
+  constructor(db: Db, private auth: { api_secret: string, api_key: string }) {
     super(db);
   }
 
@@ -49,11 +49,11 @@ export class OptimizingPhotoBucket extends PhotoBucket {
         data: JSON.stringify(krakenOptions),
         upload: wrappedStream
       }
-    }, (err: Error, response: BhttpResponse) => {
+    }, { responseTimeout: 60 * 1000 }, (err: Error, response: BhttpResponse) => {
       if (err) { return cb(new Error(`PhotoOptimizier:POST Request:${err.message}`)); }
       const status = response.body;
       if (status.success) {
-        bhttp.get(status.kraked_url, {stream: true}, (getErr: Error, getResponse: NodeJS.ReadableStream) => {
+        bhttp.get(status.kraked_url, { stream: true }, (getErr: Error, getResponse: NodeJS.ReadableStream) => {
           if (getErr) { return cb(new Error(`PhotoOptimizier:GET Request:${getErr.message}`)); }
           getResponse
             .pipe(downStream)
