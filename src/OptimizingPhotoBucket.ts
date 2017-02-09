@@ -50,7 +50,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
         upload: wrappedStream
       }
     }, (err: Error, response: BhttpResponse) => {
-      if (err) { return cb(new Error(`PhotoOptimizier:POST Request:${err.message}\nResponse:${response}`)); }
+      if (err) { return cb(new Error(`PhotoOptimizier:POST Request:${err.message}`)); }
       const status = response.body;
       if (status.success) {
         bhttp.get(status.kraked_url, { stream: true }, (getErr: Error, getResponse: NodeJS.ReadableStream) => {
