@@ -123,8 +123,7 @@ export class PhotoBucket extends GridFSBucket {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Transform Error: _id not found')); }
       const newId = Random.id();
-      const newContentType = 'image/jpeg';
-      const newMetadata: PhotoMetadata = {
+      const metadata: PhotoMetadata = {
         type,
         isOptimized: false,
         checksum: doc.metadata.checksum,
@@ -132,32 +131,27 @@ export class PhotoBucket extends GridFSBucket {
         width: doc.metadata.width,
         height: doc.metadata.height
       };
-      const fileTransform = this.shouldMakeJpeg(doc) ? this.photoTransforms[type](doc).quality(100).jpeg() : this.photoTransforms[type](doc);
+      const {transform, contentType} = this.photoTransforms[type](doc);
 
       const newDoc = {
         _id: newId,
         filename: doc.filename,
-        contentType: newContentType,
-        metadata: newMetadata
+        contentType,
+        metadata
       } as PhotoDoc;
 
       const downloadStream = this.openDownloadStream(_id as any);
       const uploadStream = this.openUploadStreamWithId(newId, doc.filename, {
-        contentType: newContentType,
-        metadata: newMetadata
+        contentType,
+        metadata
       }).once('finish', () => cb(null, newDoc)).once('error', cb);
-      downloadStream.pipe(fileTransform).pipe(uploadStream);
+      downloadStream.pipe(transform).pipe(uploadStream);
     });
   }
 
 
-  registerType(type: string, transform: (doc?: PhotoDoc) => PhotoTransform): void {
+  registerType(type: string, transform: (doc?: PhotoDoc) => {transform: PhotoTransform, contentType?: string}): void {
     this.photoTransforms[type] = transform;
-  }
-
-
-  private shouldMakeJpeg(doc: PhotoDoc): boolean {
-    return doc.contentType !== 'image/jpeg' || !/rgb/.test(doc.metadata.space);
   }
 }
 
@@ -207,5 +201,8 @@ export interface PhotoTransform extends NodeJS.ReadWriteStream {
 
 
 export interface PhotoTransformDict {
-  [index: string]: (doc: PhotoDoc) => PhotoTransform;
+  [index: string]: (doc: PhotoDoc) => {
+    transform: PhotoTransform;
+    contentType?: string;
+  };
 }
