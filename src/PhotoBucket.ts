@@ -150,8 +150,8 @@ export class PhotoBucket extends GridFSBucket {
   }
 
 
-  registerType(type: string, transform: (doc?: PhotoDoc) => {transform: PhotoTransform, contentType?: string}): void {
-    this.photoTransforms[type] = transform;
+  registerTransform(transform: PhotoTransform): void {
+    this.photoTransforms[transform.name] = transform;
   }
 }
 
@@ -194,15 +194,15 @@ export interface PhotoMetadata {
 
 
 
-export interface PhotoTransform extends NodeJS.ReadWriteStream {
-  quality(val: number): PhotoTransform;
-  jpeg(): PhotoTransform;
+export interface PhotoTransform  {
+  name: string;
+  (doc?: PhotoDoc): {
+    transform: NodeJS.ReadWriteStream;
+    contentType?: string;
+  };
 }
 
 
 export interface PhotoTransformDict {
-  [index: string]: (doc: PhotoDoc) => {
-    transform: PhotoTransform;
-    contentType?: string;
-  };
+  [name: string]: PhotoTransform;
 }
