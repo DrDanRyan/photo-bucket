@@ -136,7 +136,7 @@ export class PhotoBucket extends GridFSBucket {
       const newDoc = {
         _id: newId,
         filename: doc.filename,
-        contentType,
+        contentType: contentType || doc.contentType,
         metadata
       } as PhotoDoc;
 
