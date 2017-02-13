@@ -168,6 +168,7 @@ export interface ErrorCb {
 
 export interface PhotoDoc {
   _id: string;
+  md5: string;
   length: number;
   contentType: string;
   filename: string;
