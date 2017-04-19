@@ -59,8 +59,8 @@ export class PhotoBucket extends GridFSBucket {
       if (err) { return uploadCb(err); }
 
       const {metadata, checksum} = res;
-      if (['png', 'jpeg', 'tiff', 'webp'].indexOf(metadata.format) === -1) {
-        return uploadCb(new Error(`metdata: format of ${metadata.format} is not supported`));
+      if (['png', 'jpeg', 'tiff', 'webp', 'gif'].indexOf(metadata.format) === -1) {
+        return uploadCb(new Error(`metadata: format of ${metadata.format} is not supported`));
       }
 
       const doc = {
