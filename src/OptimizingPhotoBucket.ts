@@ -25,7 +25,14 @@ export class OptimizingPhotoBucket extends PhotoBucket {
       contentType: doc.contentType,
       metadata: newMetadata
     });
-    this.sendToKraken(readStream, doc, writeStream, (err: Error) => cb(err, newId));
+    this.sendToKraken(readStream, doc, writeStream, err => {
+      if (err) {
+        this.notifier.emit('error', err);
+        return cb(err);
+      }
+      this.notifier.emit('optimize', { old: doc._id, new: newId });
+      cb(null, newId);
+    });
   }
 
   private sendToKraken(upStream: NodeJS.ReadableStream, doc: PhotoDoc, downStream: NodeJS.WritableStream, cb: ErrorCb): void {

@@ -12,7 +12,7 @@
         "emitDecoratorMetadata": true,
         "declaration": true
     },
-    "files": [
-        "src/index.ts"
+    "lib": [
+        "es2015"
     ]
 }

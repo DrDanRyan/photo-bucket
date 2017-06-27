@@ -3,16 +3,22 @@ import { createWriteStream, createReadStream } from 'fs';
 import { basename } from 'path';
 import { parallel } from 'async';
 import { createHash } from 'crypto';
+import { EventEmitter } from 'events';
 const Random = require('meteor-random');
 const sharp = require('sharp');
 export { Db };
 
 export class PhotoBucket extends GridFSBucket {
   protected photoTransforms: PhotoTransformDict = {};
-
+  protected notifier: EventEmitter = new EventEmitter();
 
   constructor(db: Db, name = 'photos') {
     super(db, { bucketName: name });
+  }
+
+
+  on(event: string, listener: Function) {
+    this.notifier.on(event, listener);
   }
 
 
@@ -80,7 +86,13 @@ export class PhotoBucket extends GridFSBucket {
       const uploadStream = this.openUploadStreamWithId(doc._id, filename, {
         contentType: doc.contentType,
         metadata: doc.metadata
-      }).once('finish', () => uploadCb(null, doc)).once('error', uploadCb);
+      }).once('finish', () => {
+        this.notifier.emit('upload', doc);
+        uploadCb(null, doc);
+      }).once('error', err => {
+        this.notifier.emit('error', err);
+        uploadCb(err);
+      });
       readStream.pipe(uploadStream);
     });
   }
@@ -144,7 +156,13 @@ export class PhotoBucket extends GridFSBucket {
       const uploadStream = this.openUploadStreamWithId(newId, doc.filename, {
         contentType,
         metadata
-      }).once('finish', () => cb(null, newDoc)).once('error', cb);
+      }).once('finish', () => {
+        this.notifier.emit('transform', newDoc);
+        cb(null, newDoc)
+      }).once('error', err => {
+        this.notifier.emit('error', err);
+        cb(err);
+      });
       downloadStream.pipe(transform).pipe(uploadStream);
     });
   }
