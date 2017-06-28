@@ -1,6 +1,6 @@
 import { PhotoBucket, PhotoDoc, ErrorCb, ResultCb, Db } from './PhotoBucket';
 import { IncomingMessage } from 'http';
-const Random = require('meteor-random');
+const random = require('meteor-random');
 const bhttp = require('bhttp');
 const krakenUrl = 'https://api.kraken.io/v1/upload';
 
@@ -10,7 +10,7 @@ export class OptimizingPhotoBucket extends PhotoBucket {
   }
 
   optimize(doc: PhotoDoc, cb: ResultCb<string>): void {
-    const newId = Random.id();
+    const newId = random.id();
     const newMetadata = {
       type: doc.metadata.type,
       isOptimized: true,

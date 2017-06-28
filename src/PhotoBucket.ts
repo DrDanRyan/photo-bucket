@@ -4,21 +4,17 @@ import { basename } from 'path';
 import { parallel } from 'async';
 import { createHash } from 'crypto';
 import { EventEmitter } from 'events';
-const Random = require('meteor-random');
+const random = require('meteor-random');
 const sharp = require('sharp');
 export { Db };
 
 export class PhotoBucket extends GridFSBucket {
   protected photoTransforms: PhotoTransformDict = {};
-  protected notifier: EventEmitter = new EventEmitter();
+  public notifier: EventEmitter = new EventEmitter();
+
 
   constructor(db: Db, name = 'photos') {
     super(db, { bucketName: name });
-  }
-
-
-  on(event: string, listener: Function) {
-    this.notifier.on(event, listener);
   }
 
 
@@ -64,13 +60,13 @@ export class PhotoBucket extends GridFSBucket {
     }, (err: Error, res: { metadata: SharpMetadata, checksum: string }) => {
       if (err) { return uploadCb(err); }
 
-      const {metadata, checksum} = res;
+      const { metadata, checksum } = res;
       if (['png', 'jpeg', 'tiff', 'webp', 'gif'].indexOf(metadata.format) === -1) {
         return uploadCb(new Error(`metadata: format of ${metadata.format} is not supported`));
       }
 
       const doc = {
-        _id: Random.id(),
+        _id: random.id(),
         filename,
         contentType: `image/${metadata.format}`,
         metadata: {
@@ -134,7 +130,7 @@ export class PhotoBucket extends GridFSBucket {
     this.findOne(_id, (err: Error, doc: PhotoDoc): void => {
       if (err) { return cb(err); }
       if (!doc) { return cb(new Error('Transform Error: _id not found')); }
-      const newId = Random.id();
+      const newId = random.id();
       const metadata: PhotoMetadata = {
         type,
         isOptimized: false,
@@ -143,7 +139,7 @@ export class PhotoBucket extends GridFSBucket {
         width: doc.metadata.width,
         height: doc.metadata.height
       };
-      const {transform, contentType} = this.photoTransforms[type](doc);
+      const { transform, contentType } = this.photoTransforms[type](doc);
 
       const newDoc = {
         _id: newId,
@@ -158,7 +154,7 @@ export class PhotoBucket extends GridFSBucket {
         metadata
       }).once('finish', () => {
         this.notifier.emit('transform', newDoc);
-        cb(null, newDoc)
+        cb(null, newDoc);
       }).once('error', err => {
         this.notifier.emit('error', err);
         cb(err);
@@ -213,7 +209,7 @@ export interface PhotoMetadata {
 
 
 
-export interface PhotoTransform  {
+export interface PhotoTransform {
   (doc?: PhotoDoc): {
     transform: NodeJS.ReadWriteStream;
     contentType?: string;
