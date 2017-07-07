@@ -3,14 +3,12 @@ import { createWriteStream, createReadStream } from 'fs';
 import { basename } from 'path';
 import { parallel } from 'async';
 import { createHash } from 'crypto';
-import { EventEmitter } from 'events';
 const random = require('meteor-random');
 const sharp = require('sharp');
 export { Db };
 
 export class PhotoBucket extends GridFSBucket {
   protected photoTransforms: PhotoTransformDict = {};
-  public notifier: EventEmitter = new EventEmitter();
 
 
   constructor(db: Db, name = 'photos') {
@@ -83,10 +81,8 @@ export class PhotoBucket extends GridFSBucket {
         contentType: doc.contentType,
         metadata: doc.metadata
       }).once('finish', () => {
-        this.notifier.emit('upload', doc);
         uploadCb(null, doc);
       }).once('error', err => {
-        this.notifier.emit('error', err);
         uploadCb(err);
       });
       readStream.pipe(uploadStream);
@@ -153,10 +149,8 @@ export class PhotoBucket extends GridFSBucket {
         contentType,
         metadata
       }).once('finish', () => {
-        this.notifier.emit('transform', newDoc);
         cb(null, newDoc);
       }).once('error', err => {
-        this.notifier.emit('error', err);
         cb(err);
       });
       downloadStream.pipe(transform).pipe(uploadStream);
