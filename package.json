@@ -18,12 +18,15 @@
   "license": "ISC",
   "dependencies": {
     "@types/async": "^2.0.38",
-    "@types/mongodb": "^2.1.37",
-    "@types/node": "^7.0.3",
     "async": "^2.0.0",
     "bhttp": "^1.2.1",
     "meteor-random": "0.0.3",
-    "mongodb": "^2.2.2",
+    "mongodb": "^3.0.6",
     "sharp": "*"
+  },
+  "devDependencies": {
+    "@types/mongodb": "^3.0.13",
+    "@types/node": "^8.10.8",
+    "@types/sharp": "^0.17.8"
   }
 }
